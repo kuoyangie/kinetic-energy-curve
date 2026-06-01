@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Velocity Premium</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=Spline+Sans+Mono:wght@400;500;600&display=swap');
+
+  :root{
+    --ink:#0a0e14;
+    --panel:#11161f;
+    --paper:#f4efe6;
+    --dim:#7d8794;
+    --curve:#ff5e3a;
+    --grid:#1d2530;
+    --accent:#ffd166;
+    --pip:#5ad1c4;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    background:
+      radial-gradient(ellipse at 75% 10%, rgba(255,94,58,.10), transparent 55%),
+      radial-gradient(ellipse at 10% 90%, rgba(90,209,196,.08), transparent 55%),
+      var(--ink);
+    color:var(--paper);
+    font-family:'Spline Sans Mono',monospace;
+    min-height:100vh;
+    padding:32px 24px 56px;
+    overflow-x:hidden;
+  }
+  .wrap{max-width:920px;margin:0 auto;}
+  .eyebrow{
+    font-size:12px;letter-spacing:.32em;text-transform:uppercase;
+    color:var(--curve);font-weight:600;margin-bottom:10px;
+  }
+  h1{
+    font-family:'Fraunces',serif;font-weight:900;font-size:clamp(34px,6vw,62px);
+    line-height:.98;letter-spacing:-.02em;margin-bottom:14px;
+  }
+  h1 em{font-style:italic;color:var(--accent);}
+  .sub{color:var(--dim);font-size:14px;line-height:1.6;max-width:620px;margin-bottom:6px;}
+  .sub b{color:var(--paper);font-weight:500;}
+
+  .chartcard{
+    margin-top:30px;background:linear-gradient(180deg,var(--panel),#0d121a);
+    border:1px solid var(--grid);border-radius:16px;padding:22px 18px 14px;
+    box-shadow:0 30px 60px -30px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.04);
+    position:relative;
+  }
+  .axis-label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);}
+  svg{width:100%;height:auto;display:block;}
+  .gridline{stroke:var(--grid);stroke-width:1;}
+  .curvepath{fill:none;stroke:var(--curve);stroke-width:2.5;
+    filter:drop-shadow(0 0 8px rgba(255,94,58,.5));
+    stroke-dasharray:2400;stroke-dashoffset:2400;
+    animation:draw 2.2s ease-out .3s forwards;}
+  @keyframes draw{to{stroke-dashoffset:0;}}
+  .pip{cursor:pointer;}
+  .pip circle{fill:var(--ink);stroke:var(--pip);stroke-width:2;transition:all .2s;}
+  .pip:hover circle{fill:var(--pip);r:8;}
+  .pip text{fill:var(--paper);font-size:11px;font-weight:500;}
+  .ticklabel{fill:var(--dim);font-size:10px;font-family:'Spline Sans Mono';}
+
+  .readout{
+    margin-top:20px;display:grid;grid-template-columns:1fr;gap:0;
+    border:1px solid var(--grid);border-radius:12px;overflow:hidden;
+  }
+  .row{display:grid;grid-template-columns:1.4fr 1fr 1.3fr;gap:8px;
+    padding:11px 16px;font-size:13px;align-items:center;
+    border-bottom:1px solid var(--grid);transition:background .2s;}
+  .row:last-child{border-bottom:none;}
+  .row:hover{background:rgba(90,209,196,.06);}
+  .row.head{background:rgba(255,255,255,.03);font-size:10px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--dim);}
+  .row .name{color:var(--paper);font-weight:500;}
+  .row .v{color:var(--accent);}
+  .row .m{color:var(--pip);text-align:right;font-weight:600;}
+  .row .m small{color:var(--dim);font-weight:400;}
+
+  .punch{
+    margin-top:26px;padding:24px 26px;border-radius:14px;
+    background:linear-gradient(120deg,rgba(255,94,58,.12),rgba(255,209,102,.06));
+    border:1px solid rgba(255,94,58,.3);
+  }
+  .punch .big{font-family:'Fraunces',serif;font-weight:900;font-size:clamp(22px,4vw,34px);
+    line-height:1.1;letter-spacing:-.01em;}
+  .punch .big span{color:var(--curve);}
+  .punch p{margin-top:10px;color:var(--dim);font-size:13px;line-height:1.6;}
+  .foot{margin-top:22px;font-size:11px;color:var(--dim);text-align:center;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Fixed energy · 1,000,000 joules</div>
+  <h1>The <em>velocity</em> premium</h1>
+  <p class="sub">Every object below carries the <b>exact same kinetic energy</b>. The only question is how it gets there: with brute mass, or with raw speed. Because <b>KE = ½mv²</b>, holding energy constant forces <b>m ∝ 1/v²</b> — a hyperbola that plunges as speed rises.</p>
+
+  <div class="chartcard">
+    <svg viewBox="0 0 760 460" role="img" aria-label="Mass versus velocity hyperbola at fixed kinetic energy">
+      <!-- axes frame -->
+      <g id="grid"></g>
+      <!-- curve -->
+      <path id="curve" class="curvepath"></path>
+      <!-- pips -->
+      <g id="pips"></g>
+      <!-- axis titles -->
+      <text x="380" y="452" text-anchor="middle" class="axis-label">Velocity  (m/s, log scale) →</text>
+      <text x="-230" y="16" text-anchor="middle" transform="rotate(-90 16 16)" class="axis-label">Mass needed (kg, log scale) →</text>
+    </svg>
+  </div>
+
+  <div class="readout" id="table"></div>
+
+  <div class="punch">
+    <div class="big">A <span>1.8-gram paperclip</span> at meteor speed packs the same punch as a <span>20-ton truck</span> at 10 m/s.</div>
+    <p>Same energy. A mass ratio of roughly 11,000,000 : 1. That collapsing curve is why a sliver of fast matter rivals something eleven million times heavier — and why the Cape Cod rock was dangerous at all.</p>
+  </div>
+
+  <div class="foot">m = 2·KE / v²  ·  KE fixed at 1 MJ  ·  hover any point</div>
+</div>
+
+<script>
+const KE = 1e6; // joules
+// data: name, velocity m/s, mass-descriptor
+const data = [
+  {n:"Slow truck",      v:10,    note:"loaded dump truck"},
+  {n:"Highway car",     v:30,    note:"a real car"},
+  {n:"Fast train",      v:100,   note:"a large man"},
+  {n:"Rifle bullet",    v:1000,  note:"a bag of sugar"},
+  {n:"Meteor (Cape Cod)",v:33500, note:"a paperclip"}
+];
+data.forEach(d=> d.m = 2*KE/(d.v*d.v));
+
+// log-scale plotting domain
+const vMin=8, vMax=50000, mMin=1e-4, mMax=3e4;
+const padL=70, padR=30, padT=30, padB=46, W=760, H=460;
+const plotW = W-padL-padR, plotH = H-padT-padB;
+const lx = v => padL + (Math.log10(v)-Math.log10(vMin))/(Math.log10(vMax)-Math.log10(vMin))*plotW;
+const ly = m => padT + (Math.log10(mMax)-Math.log10(m))/(Math.log10(mMax)-Math.log10(mMin))*plotH;
+
+// gridlines
+const gridEl = document.getElementById('grid');
+const vt=[10,100,1000,10000];
+const mt=[1e-4,1e-2,1,1e2,1e4];
+const sup={"-4":"10⁻⁴","-2":"10⁻²","0":"1","2":"10²","4":"10⁴"};
+vt.forEach(v=>{const x=lx(v);
+  gridEl.innerHTML+=`<line class="gridline" x1="${x}" y1="${padT}" x2="${x}" y2="${padT+plotH}"/>`;
+  gridEl.innerHTML+=`<text class="ticklabel" x="${x}" y="${padT+plotH+15}" text-anchor="middle">${v}</text>`;});
+mt.forEach(m=>{const y=ly(m);const e=Math.round(Math.log10(m));
+  gridEl.innerHTML+=`<line class="gridline" x1="${padL}" y1="${y}" x2="${padL+plotW}" y2="${y}"/>`;
+  gridEl.innerHTML+=`<text class="ticklabel" x="${padL-8}" y="${y+3}" text-anchor="end">${sup[e]??m}</text>`;});
+
+// curve path across full velocity range
+let dpath="";
+for(let i=0;i<=120;i++){
+  const v = Math.pow(10, Math.log10(vMin)+ i/120*(Math.log10(vMax)-Math.log10(vMin)));
+  const m = 2*KE/(v*v);
+  dpath += (i===0?"M":"L")+lx(v).toFixed(1)+" "+ly(m).toFixed(1)+" ";
+}
+document.getElementById('curve').setAttribute('d',dpath);
+
+// pips
+const pe=document.getElementById('pips');
+data.forEach((d,i)=>{
+  const x=lx(d.v), y=ly(d.m);
+  const anchor = d.v>5000 ? "end" : "start";
+  const dx = d.v>5000 ? -12 : 12;
+  pe.innerHTML+=`<g class="pip" style="animation:fadein .4s ease ${1.4+i*.15}s both">
+    <circle cx="${x}" cy="${y}" r="6"/>
+    <text x="${x+dx}" y="${y+4}" text-anchor="${anchor}">${d.n}</text>
+  </g>`;
+});
+
+// fade keyframe injection
+const st=document.createElement('style');
+st.textContent="@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1}}";
+document.head.appendChild(st);
+
+// table
+function fmtMass(m){
+  if(m>=1000) return (m/1000).toFixed(m>=10000?0:1)+" t";
+  if(m>=1) return m.toFixed(m<10?1:0)+" kg";
+  return (m*1000).toFixed(1)+" g";
+}
+const t=document.getElementById('table');
+t.innerHTML=`<div class="row head"><span>Object</span><span>Velocity</span><span>Mass for 1 MJ</span></div>`;
+data.forEach(d=>{
+  t.innerHTML+=`<div class="row">
+    <span class="name">${d.n}</span>
+    <span class="v">${d.v.toLocaleString()} m/s</span>
+    <span class="m">${fmtMass(d.m)} <small>(${d.note})</small></span>
+  </div>`;
+});
+</script>
+</body>
+</html>
